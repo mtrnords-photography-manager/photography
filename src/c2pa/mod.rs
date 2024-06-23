@@ -99,13 +99,11 @@ fn load_certificates(
 }
 
 pub fn sign_image(
-    c2pa_path: PathBuf,
     export_path: PathBuf,
     image_data: Arc<FileData>,
     exif_data: Option<ExifData>,
+    content_credentials_certificate: Arc<Certificate>,
 ) -> color_eyre::Result<()> {
-    let (_, content_credentials_certificate) = load_certificates(c2pa_path)?;
-
     let app_info = ApplicationInfo::new(APP_NAME.to_string(), "0.1.0".to_string(), None);
     let cc = ContentCredentials::new(content_credentials_certificate, image_data, Some(app_info));
 
@@ -151,7 +149,7 @@ impl C2PASigner {
         import_stream: jetstream::stream::Stream,
     ) -> color_eyre::Result<Self> {
         let consumer = import_stream
-            .create_consumer(jetstream::consumer::pull::Config {
+            .create_consumer(Config {
                 durable_name: Some("processor-2".to_string()),
                 filter_subject: "import.sign_request".to_string(),
                 ..Default::default()
@@ -168,6 +166,7 @@ impl C2PASigner {
     pub async fn consumer(&self) -> color_eyre::Result<()> {
         let mut messages = self.consumer.messages().await?;
         info!("Signing consumer started");
+        let (_, content_credentials_certificate) = load_certificates(self.c2pa_folder.clone())?;
         while let Some(msg) = messages.next().await {
             match msg {
                 Ok(msg) => {
@@ -233,10 +232,10 @@ impl C2PASigner {
                     }
 
                     sign_image(
-                        self.c2pa_folder.clone(),
                         image_path.clone(),
                         FileData::new(Some(image_path.clone()), None, Some(filename.to_string())),
                         exif_data,
+                        content_credentials_certificate.clone(),
                     )?;
 
                     // Acknowledge the message to remove it from the queue
