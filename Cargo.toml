@@ -19,8 +19,8 @@ serde = { version = "1.0.203", features = ["derive"] }
 clap = { version = "4.5.7", features = ["derive"] }
 rexiv2 = "0.10.0"
 time = { version = "0.3.36", features = ["macros"] }
-simple-c2pa = { version = "0.0.14", path = "../simple-c2pa" }
+simple-c2pa = { version = "0.0.14", git = "https://github.com/mtrnords-photography-manager/simple-c2pa.git" }
 walkdir = "2.5.0"
 vfs = { version = "0.12.0", features = ["async-vfs", "tokio"] }
 file-lock = "2.1.11"
-c2pa = { version = "0.32.1", features = ["file_io", "unstable_api"], path = "/run/media/marcel/1ac60e61-e5e2-4157-9a7a-830801a3fb0b/projects/c2pa-rs/sdk" }
+c2pa = { version = "0.32.2", features = ["file_io", "unstable_api"], git = "https://github.com/mtrnords-photography-manager/c2pa-rs.git" }
